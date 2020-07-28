@@ -1,3 +1,5 @@
+"use strict"
+
 const aws = require("aws-sdk");
 const fetch = require("node-fetch");
 
@@ -14,21 +16,26 @@ const snsClient = new aws.SNS({
     region: "ap-southeast-2"
 });
 
-(async () => {
-    const str1 = await getWeatherNow();
-    console.log(str1);
+
+exports.handler = async function (event, context){
+    function wait(){
+        return new Promise((resolve, reject) => {
+            setTimeout(() => resolve("hello"), 2000)
+        });
+    }
+
+    const data = await getWeatherNow();
     snsClient.publish({
         TopicArn: SNS_ARN,
-        Message: str1,
-
-    }, (error, data) => {
-        if (error) return console.log(error);
-
-        console.log("Done str1");
+        Message: data
+    },(error, data) => {
+        context.succeed(`Error: ${error}\nData: ${data}`);
     });
-    
 
-})();
+    // To force lambda wait for SNS callback
+    console.log(await wait());
+    console.log(await wait());
+}
 
 async function getWeatherNow(){
     const res = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${LATITUDE}&lon=${LONGITUDE}&appid=${WEATHER_API_KEY}&exclude=${EXCLUDES}&units=metric`)

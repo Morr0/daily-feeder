@@ -1,0 +1,7 @@
+{
+  "lambda": {
+    "role": "DailyFeeder-executor",
+    "name": "DailyFeeder",
+    "region": "ap-southeast-2"
+  }
+}
