@@ -8,7 +8,6 @@ const {
     LATITUDE,
     LONGITUDE,
     WEATHER_API_KEY,
-    EXCLUDES,
     SNS_ARN
 } = process.env;
 
@@ -38,10 +37,18 @@ exports.handler = async function (event, context){
 }
 
 async function getWeatherNow(){
-    const res = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${LATITUDE}&lon=${LONGITUDE}&appid=${WEATHER_API_KEY}&exclude=${EXCLUDES}&units=metric`)
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${LATITUDE}&lon=${LONGITUDE}&appid=${WEATHER_API_KEY}&units=metric&exclude=minutely,hourly`);
     if (res.status === 200){
         const data = await res.json();
         console.log(data);
-        return `Temp: ${data.current.temp}C\nFeels: ${data.current.feels_like}C\nHumidity: ${data.current.humidity}%\nCloudness: ${data.current.clouds}%`;
+
+        // Current weather
+        let now = `Now:\n\nTemp: ${data.current.temp}C\nFeels: ${data.current.feels_like}C\nHumidity: ${data.current.humidity}%\nCloudness: ${data.current.clouds}%\n\n`;
+        
+        // Get the daily, grab first element of the array representing today
+        const todayData = data.daily[0];
+        let today = `Today:\n\nTemp: ${todayData.temp.day}C\nLow: ${todayData.temp.min}C\nHigh: ${todayData.temp.max}C\nHumidity: ${todayData.humidity}%\nCloudness: ${todayData.clouds}%\nWind: ${todayData.wind_speed}km/hr`;
+
+        return now + today;
     }
 }
