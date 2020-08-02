@@ -3,20 +3,17 @@ const fetch = require("node-fetch");
 
 require("dotenv").config();
 const {
-    LATITUDE,
-    LONGITUDE,
     WEATHER_API_KEY,
-    SNS_ARN
 } = process.env;
 
 const snsClient = new aws.SNS({
     region: "ap-southeast-2"
 });
 
-module.exports = async function (context){
-    const data = await getWeatherNow();
+module.exports = async function (event, context){
+    const data = await getWeatherNow(event);
     snsClient.publish({
-        TopicArn: SNS_ARN,
+        TopicArn: event.sns_arn,
         Message: data
     },(error, data) => {
 
@@ -24,8 +21,8 @@ module.exports = async function (context){
     });
 }
 
-async function getWeatherNow(){
-    const res = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${LATITUDE}&lon=${LONGITUDE}&appid=${WEATHER_API_KEY}&units=metric&exclude=minutely,hourly`);
+async function getWeatherNow({lat, lon}){
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric&exclude=minutely,hourly`);
     if (res.status === 200){
         const data = await res.json();
 

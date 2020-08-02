@@ -1,16 +1,7 @@
 "use strict"
 
 exports.handler = async function (event, context){
-    console.log(event);
-    function wait(){
-        return new Promise((resolve, reject) => {
-            setTimeout(() => resolve("hello"), 2000)
-        });
-    }
+    // console.log(event);
 
-    await require("./app")(context);
-
-    // To force lambda wait for SNS callback
-    console.log(await wait());
-    console.log(await wait());
+    await require("./app")(event, context);
 }
