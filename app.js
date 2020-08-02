@@ -11,12 +11,14 @@ const snsClient = new aws.SNS({
 });
 
 module.exports = async function (event, context){
-    const data = await getWeatherNow(event);
+    const weatherOfNowAndTheDay = await getWeatherNow(event);
+    const adviceOfTheDay = await require("./calls/advice")();
+    const data = weatherOfNowAndTheDay + adviceOfTheDay;
+
     snsClient.publish({
         TopicArn: event.sns_arn,
         Message: data
     },(error, data) => {
-
         context.succeed(`Error: ${error}\nData: ${data}`);
     });
 }
