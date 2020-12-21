@@ -1,0 +1,1 @@
+(async () => require("./app.js")(undefined, undefined))();
